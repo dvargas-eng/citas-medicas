@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Citas de la Familia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://js.puter.com/v2/"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root{
+    --bg: #FAF6F0;
+    --card: #FFFFFF;
+    --ink: #2B2420;
+    --ink-soft: #6B6259;
+    --teal: #3F6E66;
+    --teal-dark: #2C4E48;
+    --coral: #E8895F;
+    --coral-dark: #C96A42;
+    --amber: #E8A94C;
+    --line: #E7DFD3;
+    --danger: #C1503F;
+    --radius: 20px;
+    --radius-sm: 12px;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Atkinson Hyperlegible', sans-serif;
+    font-size:18px;
+    line-height:1.5;
+    -webkit-tap-highlight-color: transparent;
+    padding-bottom:60px;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    color:var(--teal-dark);
+    margin:0 0 4px 0;
+  }
+  .wrap{ max-width:520px; margin:0 auto; padding:24px 20px; }
+
+  header{ text-align:center; margin-bottom:28px; }
+  header h1{ font-size:30px; }
+  header p{ color:var(--ink-soft); margin:0; font-size:16px; }
+
+  /* --- signature element: the recording button --- */
+  .record-zone{
+    display:flex; flex-direction:column; align-items:center; gap:14px;
+    margin: 20px 0 32px 0;
+  }
+  .record-btn{
+    width:150px; height:150px; border-radius:50%;
+    border:none; cursor:pointer;
+    background: radial-gradient(circle at 35% 30%, var(--coral), var(--coral-dark));
+    box-shadow: 0 10px 24px rgba(201,106,66,0.35);
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+    transition: transform .15s ease;
+  }
+  .record-btn:active{ transform:scale(0.96); }
+  .record-btn svg{ width:56px; height:56px; }
+  .record-btn.recording{
+    background: radial-gradient(circle at 35% 30%, #E85B4E, #B5372B);
+    animation: pulse 1.3s infinite;
+  }
+  @keyframes pulse{
+    0%{ box-shadow: 0 0 0 0 rgba(197,63,45,0.45), 0 10px 24px rgba(201,106,66,0.35); }
+    70%{ box-shadow: 0 0 0 22px rgba(197,63,45,0), 0 10px 24px rgba(201,106,66,0.35); }
+    100%{ box-shadow: 0 0 0 0 rgba(197,63,45,0), 0 10px 24px rgba(201,106,66,0.35); }
+  }
+  .record-status{ font-size:19px; font-weight:700; color:var(--teal-dark); min-height:26px; text-align:center; }
+  .record-hint{ font-size:15px; color:var(--ink-soft); text-align:center; max-width:320px; }
+  .record-timer{ font-family:'Fraunces',serif; font-size:22px; color:var(--danger); font-weight:600; }
+
+  .status-card{
+    background:var(--card); border-radius:var(--radius); padding:18px 20px;
+    display:flex; align-items:center; gap:14px; margin-bottom:20px;
+    box-shadow: 0 2px 10px rgba(43,36,32,0.06);
+  }
+  .spinner{
+    width:22px; height:22px; border-radius:50%;
+    border:3px solid var(--line); border-top-color:var(--teal);
+    animation: spin 0.8s linear infinite; flex-shrink:0;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .error-card{
+    background:#FBEAE6; border:1px solid #EFC3B7; border-radius:var(--radius);
+    padding:16px 18px; color:var(--danger); margin-bottom:20px; font-size:16px;
+  }
+
+  /* appointment cards */
+  .citas-header{ margin: 28px 0 14px 0; }
+  .citas-header h2{ font-size:22px; }
+  .citas-header p{ color:var(--ink-soft); font-size:15px; margin:0; }
+
+  .cita-card{
+    background:var(--card); border-radius:var(--radius); padding:20px;
+    margin-bottom:16px; box-shadow: 0 2px 10px rgba(43,36,32,0.06);
+    border:1px solid var(--line);
+  }
+  .cita-card.recien-llegada{ animation: fadeIn .5s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+
+  .field{ margin-bottom:14px; }
+  .field label{
+    display:block; font-size:13px; font-weight:700; letter-spacing:.02em;
+    text-transform:uppercase; color:var(--teal); margin-bottom:6px;
+  }
+  .field select, .field input{
+    width:100%; padding:12px 14px; font-size:17px; font-family:inherit;
+    border:2px solid var(--line); border-radius:var(--radius-sm);
+    background:#FFFDFB; color:var(--ink);
+  }
+  .field select:focus, .field input:focus{
+    outline:none; border-color:var(--teal);
+  }
+  .row-2{ display:flex; gap:10px; }
+  .row-2 .field{ flex:1; }
+
+  .cita-badge{
+    display:inline-block; font-size:12px; font-weight:700; padding:4px 10px;
+    border-radius:999px; background:#EAF2F0; color:var(--teal-dark); margin-bottom:12px;
+  }
+  .cita-badge.sin-normalizar{ background:#FCEFDD; color:#8A5A16; }
+
+  .quitar-cita{
+    background:none; border:none; color:var(--ink-soft); font-size:14px;
+    text-decoration:underline; cursor:pointer; padding:6px 0;
+  }
+
+  /* actions */
+  .actions{ margin-top:24px; display:flex; flex-direction:column; gap:12px; }
+  .btn{
+    font-family:'Atkinson Hyperlegible', sans-serif; font-weight:700; font-size:17px;
+    padding:16px 20px; border-radius:var(--radius-sm); border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+  }
+  .btn-primary{ background:var(--teal); color:#fff; }
+  .btn-primary:disabled{ background:#A9BDB8; cursor:not-allowed; }
+  .btn-secondary{ background:#fff; color:var(--teal-dark); border:2px solid var(--teal); }
+  .btn-google{ background:#fff; color:var(--ink); border:2px solid var(--line); }
+
+  .resultado-item{
+    display:flex; align-items:center; gap:10px; padding:10px 0;
+    border-bottom:1px solid var(--line); font-size:15px;
+  }
+  .resultado-item:last-child{ border-bottom:none; }
+  .check-ok{ color:var(--teal); font-weight:700; }
+  .check-err{ color:var(--danger); font-weight:700; }
+
+  footer{ text-align:center; margin-top:40px; color:var(--ink-soft); font-size:13px; }
+
+  @media (prefers-reduced-motion: reduce){
+    .record-btn.recording{ animation:none; }
+    .cita-card.recien-llegada{ animation:none; }
+    .spinner{ animation:none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Citas de la Familia</h1>
+    <p>Graba las citas médicas y quedan agendadas solas</p>
+  </header>
+
+  <div class="record-zone">
+    <button id="recordBtn" class="record-btn" aria-label="Grabar cita">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" id="micIcon">
+        <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z" fill="white" stroke="none"/>
+        <path d="M19 11a7 7 0 0 1-14 0M12 18v3" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <div class="record-status" id="recordStatus">Toca para grabar</div>
+    <div class="record-timer" id="recordTimer" style="display:none;">00:00</div>
+    <div class="record-hint">Describe cada cita: quién, especialidad, fecha, hora y centro médico</div>
+  </div>
+
+  <div id="statusArea"></div>
+  <div id="citasArea"></div>
+  <div id="accionesArea"></div>
+  <div id="resultadoArea"></div>
+
+  <footer>Hecho con cariño para la familia 💛</footer>
+</div>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN — edita esto antes de publicar la página
+   ============================================================ */
+// 1. Ve a https://console.cloud.google.com/apis/credentials
+// 2. Crea un proyecto, habilita "Google Calendar API"
+// 3. Crea credenciales -> ID de cliente de OAuth -> Aplicación web
+// 4. Agrega tu URL de GitHub Pages en "Orígenes autorizados de JavaScript"
+// 5. Pega aquí el Client ID que te dan:
+const GOOGLE_CLIENT_ID = "TU_CLIENT_ID_AQUI.apps.googleusercontent.com";
+
+/* ============================================================
+   DATOS DE LA FAMILIA — edita si cambian
+   ============================================================ */
+const PACIENTES = ["Fabiola", "Abraham", "Daniel", "Jonathan"];
+const APODOS = { "Faby":"Fabiola", "Batato":"Abraham", "Dany":"Daniel", "Tatan":"Jonathan" };
+
+const ESPECIALIDADES = ["Medicina General","Odontología","Prevención Oral","Ecografía","Laboratorio Clínico","Rayos X","Gotas"];
+
+const CENTROS = ["Calle 63","Ciudadela Colsubsidio","Tierra Grata","Fontibón"];
+
+/* ============================================================
+   ESTADO
+   ============================================================ */
+let mediaRecorder, audioChunks = [], recording = false, timerInterval, seconds = 0;
+let citas = []; // lista de citas extraídas (editable)
+let googleAccessToken = null;
+let tokenClient = null;
+
+const recordBtn = document.getElementById('recordBtn');
+const recordStatus = document.getElementById('recordStatus');
+const recordTimer = document.getElementById('recordTimer');
+const statusArea = document.getElementById('statusArea');
+const citasArea = document.getElementById('citasArea');
+const accionesArea = document.getElementById('accionesArea');
+const resultadoArea = document.getElementById('resultadoArea');
+
+/* ============================================================
+   GRABACIÓN DE AUDIO
+   ============================================================ */
+recordBtn.addEventListener('click', async () => {
+  if (!recording) {
+    await iniciarGrabacion();
+  } else {
+    detenerGrabacion();
+  }
+});
+
+async function iniciarGrabacion(){
+  resultadoArea.innerHTML = '';
+  statusArea.innerHTML = '';
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+    audioChunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+    mediaRecorder.onstop = procesarAudio;
+    mediaRecorder.start();
+    recording = true;
+    recordBtn.classList.add('recording');
+    recordStatus.textContent = 'Grabando… toca para terminar';
+    seconds = 0;
+    recordTimer.style.display = 'block';
+    recordTimer.textContent = '00:00';
+    timerInterval = setInterval(() => {
+      seconds++;
+      const m = String(Math.floor(seconds/60)).padStart(2,'0');
+      const s = String(seconds%60).padStart(2,'0');
+      recordTimer.textContent = `${m}:${s}`;
+    }, 1000);
+  }catch(err){
+    mostrarError('No se pudo acceder al micrófono. Revisa los permisos del navegador.');
+  }
+}
+
+function detenerGrabacion(){
+  recording = false;
+  recordBtn.classList.remove('recording');
+  clearInterval(timerInterval);
+  recordTimer.style.display = 'none';
+  recordStatus.textContent = 'Toca para grabar';
+  mediaRecorder.stop();
+  mediaRecorder.stream.getTracks().forEach(t => t.stop());
+}
+
+/* ============================================================
+   TRANSCRIPCIÓN + EXTRACCIÓN (Puter.js)
+   ============================================================ */
+async function procesarAudio(){
+  const audioBlob = new Blob(audioChunks, { type:'audio/webm' });
+  mostrarEstado('Transcribiendo el audio…');
+
+  try{
+    const transcripcion = await puter.ai.speech2txt({ file: audioBlob, model:'whisper-1' });
+    const texto = (typeof transcripcion === 'string') ? transcripcion : (transcripcion.text || '');
+
+    if (!texto || !texto.trim()) {
+      mostrarError('No se logró transcribir nada. Intenta grabar de nuevo, hablando un poco más despacio.');
+      return;
+    }
+
+    mostrarEstado('Buscando las citas mencionadas…');
+    const nuevasCitas = await extraerCitas(texto);
+
+    if (!nuevasCitas.length) {
+      mostrarError('No se identificó ninguna cita en el audio. Intenta mencionar paciente, especialidad, fecha y centro médico.');
+      return;
+    }
+
+    citas = citas.concat(nuevasCitas);
+    statusArea.innerHTML = '';
+    renderCitas();
+  }catch(err){
+    console.error(err);
+    mostrarError('Hubo un problema procesando el audio. Intenta de nuevo.');
+  }
+}
+
+async function extraerCitas(texto){
+  const hoy = new Date();
+  const fechaHoyISO = hoy.toISOString().split('T')[0];
+  const anioActual = hoy.getFullYear();
+
+  const prompt = `
+Eres un asistente que extrae citas médicas de una transcripción de audio en español coloquial de Colombia.
+
+Fecha de hoy: ${fechaHoyISO} (año actual: ${anioActual})
+
+PACIENTES VÁLIDOS (si el audio usa un apodo, conviértelo al nombre completo):
+${PACIENTES.map(p => `- ${p}`).join('\n')}
+Apodos conocidos: Faby=Fabiola, Batato=Abraham, Dany=Daniel, Tatan=Jonathan
+
+ESPECIALIDADES CONOCIDAS (normaliza variantes a esta lista si aplica; si no encaja con ninguna, escribe tal cual se dijo):
+${ESPECIALIDADES.join(', ')}
+
+CENTROS MÉDICOS CONOCIDOS (normaliza variantes a esta lista si aplica; si no encaja con ninguno, escribe tal cual se dijo):
+${CENTROS.join(', ')}
+
+REGLAS DE FECHA:
+- Si no se menciona el año, usa el año actual (${anioActual}).
+- Si esa fecha ya pasó este año (es anterior a hoy), asume que es del año siguiente.
+- Devuelve la fecha en formato YYYY-MM-DD.
+- Devuelve la hora en formato 24 horas HH:MM. Si no se menciona hora, usa null.
+
+IMPORTANTE:
+- El audio puede mencionar UNA o VARIAS citas. Extrae TODAS, sin omitir ninguna.
+- No inventes datos que no se mencionaron: usa null en ese campo.
+- Si un paciente, especialidad o centro médico no coincide con las listas de arriba, escribe exactamente lo que se dijo (no lo descartes, no inventes uno de la lista).
+- Responde ÚNICAMENTE con un arreglo JSON válido, sin texto adicional, sin explicaciones, sin backticks.
+
+Formato exacto:
+[{"paciente":"","especialidad":"","fecha":"YYYY-MM-DD","hora":"HH:MM o null","centro_medico":""}]
+
+Transcripción:
+"""${texto}"""
+`;
+
+  const respuesta = await puter.ai.chat(prompt);
+  const contenido = extraerTextoRespuesta(respuesta);
+  const jsonLimpio = contenido.replace(/```json/gi,'').replace(/```/g,'').trim();
+
+  let arr;
+  try{
+    arr = JSON.parse(jsonLimpio);
+  }catch(e){
+    console.error('No se pudo interpretar la respuesta del modelo:', contenido);
+    return [];
+  }
+  if (!Array.isArray(arr)) return [];
+
+  return arr.map(c => ({
+    paciente: c.paciente || '',
+    especialidad: c.especialidad || '',
+    fecha: c.fecha || '',
+    hora: (c.hora && c.hora !== 'null') ? c.hora : null,
+    centro_medico: c.centro_medico || '',
+  }));
+}
+
+function extraerTextoRespuesta(respuesta){
+  if (typeof respuesta === 'string') return respuesta;
+  if (respuesta?.message?.content) {
+    const c = respuesta.message.content;
+    return Array.isArray(c) ? c.map(p => p.text || '').join('') : c;
+  }
+  if (respuesta?.text) return respuesta.text;
+  return String(respuesta);
+}
+
+/* ============================================================
+   UI DE CITAS (editable)
+   ============================================================ */
+function renderCitas(){
+  citasArea.innerHTML = '';
+  if (!citas.length) return;
+
+  const header = document.createElement('div');
+  header.className = 'citas-header';
+  header.innerHTML = `<h2>Citas encontradas (${citas.length})</h2><p>Revisa que todo esté bien antes de agendar</p>`;
+  citasArea.appendChild(header);
+
+  citas.forEach((cita, i) => {
+    citasArea.appendChild(crearTarjetaCita(cita, i));
+  });
+
+  renderAcciones();
+}
+
+function crearTarjetaCita(cita, index){
+  const card = document.createElement('div');
+  card.className = 'cita-card recien-llegada';
+
+  const pacienteConocido = PACIENTES.includes(cita.paciente);
+  const especialidadConocida = ESPECIALIDADES.includes(cita.especialidad);
+  const centroConocido = CENTROS.includes(cita.centro_medico);
+  const todoConocido = pacienteConocido && especialidadConocida && centroConocido;
+
+  card.innerHTML = `
+    <span class="cita-badge ${todoConocido ? '' : 'sin-normalizar'}">
+      ${todoConocido ? 'Datos reconocidos' : 'Revisar: algo no coincide con tus listas'}
+    </span>
+
+    <div class="field">
+      <label>Paciente</label>
+      ${selectOEditable(PACIENTES, cita.paciente, index, 'paciente')}
+    </div>
+
+    <div class="field">
+      <label>Especialidad</label>
+      ${selectOEditable(ESPECIALIDADES, cita.especialidad, index, 'especialidad')}
+    </div>
+
+    <div class="row-2">
+      <div class="field">
+        <label>Fecha</label>
+        <input type="date" value="${cita.fecha || ''}" data-idx="${index}" data-campo="fecha">
+      </div>
+      <div class="field">
+        <label>Hora (opcional)</label>
+        <input type="time" value="${cita.hora || ''}" data-idx="${index}" data-campo="hora">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Centro médico</label>
+      ${selectOEditable(CENTROS, cita.centro_medico, index, 'centro_medico')}
+    </div>
+
+    <button class="quitar-cita" data-idx="${index}">Quitar esta cita</button>
+  `;
+
+  card.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('change', (e) => {
+      const idx = parseInt(e.target.dataset.idx);
+      const campo = e.target.dataset.campo;
+      citas[idx][campo] = e.target.value || null;
+    });
+  });
+
+  card.querySelector('.quitar-cita').addEventListener('click', (e) => {
+    const idx = parseInt(e.target.dataset.idx);
+    citas.splice(idx, 1);
+    renderCitas();
+  });
+
+  return card;
+}
+
+function selectOEditable(lista, valorActual, index, campo){
+  const conocido = lista.includes(valorActual);
+  const opciones = lista.map(v =>
+    `<option value="${v}" ${v === valorActual ? 'selected':''}>${v}</option>`
+  ).join('');
+  const opcionOtro = `<option value="__otro__" ${!conocido ? 'selected':''}>Otro (escribir)…</option>`;
+
+  const selectId = `sel-${campo}-${index}`;
+  const inputId = `txt-${campo}-${index}`;
+
+  return `
+    <select id="${selectId}" data-idx="${index}" data-campo="${campo}"
+      onchange="manejarCambioSelect('${selectId}','${inputId}', ${index}, '${campo}')">
+      ${opciones}${opcionOtro}
+    </select>
+    <input id="${inputId}" type="text" data-idx="${index}" data-campo="${campo}"
+      value="${!conocido ? (valorActual||'') : ''}"
+      style="margin-top:8px; ${conocido ? 'display:none;':''}"
+      placeholder="Escribe aquí">
+  `;
+}
+
+function manejarCambioSelect(selectId, inputId, index, campo){
+  const sel = document.getElementById(selectId);
+  const input = document.getElementById(inputId);
+  if (sel.value === '__otro__'){
+    input.style.display = 'block';
+    input.focus();
+  } else {
+    input.style.display = 'none';
+    citas[index][campo] = sel.value;
+  }
+}
+
+function mostrarEstado(msg){
+  statusArea.innerHTML = `<div class="status-card"><div class="spinner"></div><span>${msg}</span></div>`;
+}
+function mostrarError(msg){
+  statusArea.innerHTML = `<div class="error-card">${msg}</div>`;
+}
+
+/* ============================================================
+   GOOGLE CALENDAR
+   ============================================================ */
+function renderAcciones(){
+  accionesArea.innerHTML = `
+    <div class="actions">
+      <button id="btnGoogle" class="btn btn-google">Conectar con Google Calendar</button>
+      <button id="btnAgendar" class="btn btn-primary" disabled>Agendar ${citas.length} cita(s)</button>
+    </div>
+  `;
+  document.getElementById('btnGoogle').addEventListener('click', conectarGoogle);
+  document.getElementById('btnAgendar').addEventListener('click', agendarTodas);
+}
+
+function conectarGoogle(){
+  if (!tokenClient){
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: 'https://www.googleapis.com/auth/calendar.events',
+      callback: (resp) => {
+        if (resp.access_token){
+          googleAccessToken = resp.access_token;
+          document.getElementById('btnGoogle').textContent = 'Conectado ✓';
+          document.getElementById('btnAgendar').disabled = false;
+        }
+      }
+    });
+  }
+  tokenClient.requestAccessToken();
+}
+
+async function agendarTodas(){
+  const btn = document.getElementById('btnAgendar');
+  btn.disabled = true;
+  btn.textContent = 'Agendando…';
+  resultadoArea.innerHTML = '<div class="citas-header"><h2>Resultado</h2></div>';
+
+  for (const cita of citas){
+    const ok = await crearEventoCalendar(cita);
+    const item = document.createElement('div');
+    item.className = 'resultado-item';
+    item.innerHTML = ok
+      ? `<span class="check-ok">✓</span> ${cita.paciente} – ${cita.especialidad} (${cita.fecha})`
+      : `<span class="check-err">✕</span> ${cita.paciente} – ${cita.especialidad}: no se pudo agendar`;
+    resultadoArea.appendChild(item);
+  }
+
+  btn.textContent = 'Listo';
+  citas = [];
+  citasArea.innerHTML = '';
+  accionesArea.innerHTML = '';
+}
+
+async function crearEventoCalendar(cita){
+  const evento = {
+    summary: `${cita.especialidad} – ${cita.paciente}`,
+    location: cita.centro_medico || '',
+    description: `Cita médica de ${cita.paciente}\nEspecialidad: ${cita.especialidad}\nCentro médico: ${cita.centro_medico}`,
+    reminders: {
+      useDefault: false,
+      overrides: [
+        { method:'popup', minutes: 24*60 },
+        { method:'popup', minutes: 120 }
+      ]
+    }
+  };
+
+  if (cita.hora){
+    const inicio = `${cita.fecha}T${cita.hora}:00`;
+    const finDate = new Date(`${cita.fecha}T${cita.hora}:00`);
+    finDate.setMinutes(finDate.getMinutes() + 30);
+    evento.start = { dateTime: inicio };
+    evento.end = { dateTime: finDate.toISOString().slice(0,19) };
+  } else {
+    evento.start = { date: cita.fecha };
+    const fin = new Date(cita.fecha);
+    fin.setDate(fin.getDate() + 1);
+    evento.end = { date: fin.toISOString().split('T')[0] };
+  }
+
+  try{
+    const resp = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+      method:'POST',
+      headers:{
+        'Authorization': `Bearer ${googleAccessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(evento)
+    });
+    return resp.ok;
+  }catch(e){
+    console.error(e);
+    return false;
+  }
+}
+</script>
+</body>
+</html>

@@ -571,8 +571,9 @@ async function crearEventoCalendar(cita){
     const inicio = `${cita.fecha}T${cita.hora}:00`;
     const finDate = new Date(`${cita.fecha}T${cita.hora}:00`);
     finDate.setMinutes(finDate.getMinutes() + 30);
-    evento.start = { dateTime: inicio };
-    evento.end = { dateTime: finDate.toISOString().slice(0,19) };
+    const zonaHoraria = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    evento.start = { dateTime: inicio, timeZone: zonaHoraria };
+    evento.end = { dateTime: finDate.toISOString().slice(0,19), timeZone: zonaHoraria };
   } else {
     evento.start = { date: cita.fecha };
     const fin = new Date(cita.fecha);

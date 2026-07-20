@@ -437,15 +437,13 @@ function crearTarjetaCita(cita, index){
       ${selectOEditable(ESPECIALIDADES, cita.especialidad, index, 'especialidad')}
     </div>
 
-    <div class="row-2">
-      <div class="field">
-        <label>Fecha</label>
-        <input type="date" value="${cita.fecha || ''}" data-idx="${index}" data-campo="fecha">
-      </div>
-      <div class="field">
-        <label>Hora (opcional)</label>
-        <input type="time" value="${cita.hora || ''}" data-idx="${index}" data-campo="hora">
-      </div>
+    <div class="field">
+      <label>Fecha</label>
+      <input type="date" value="${cita.fecha || ''}" data-idx="${index}" data-campo="fecha">
+    </div>
+    <div class="field">
+      <label>Hora (opcional)</label>
+      <input type="time" value="${cita.hora || ''}" data-idx="${index}" data-campo="hora">
     </div>
 
     <div class="field">

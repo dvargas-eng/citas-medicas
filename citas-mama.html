@@ -200,7 +200,7 @@
 // 3. Crea credenciales -> ID de cliente de OAuth -> Aplicación web
 // 4. Agrega tu URL de GitHub Pages en "Orígenes autorizados de JavaScript"
 // 5. Pega aquí el Client ID que te dan:
-const GOOGLE_CLIENT_ID = "976393001764-4j03hupv7i9md4fc38va6elfdak8dmak.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "TU_CLIENT_ID_AQUI.apps.googleusercontent.com";
 
 /* ============================================================
    DATOS DE LA FAMILIA — edita si cambian
@@ -442,7 +442,7 @@ function crearTarjetaCita(cita, index){
     <button class="quitar-cita" data-idx="${index}">Quitar esta cita</button>
   `;
 
-  card.querySelectorAll('input, select').forEach(el => {
+  card.querySelectorAll('input[type="text"], input[type="date"], input[type="time"]').forEach(el => {
     el.addEventListener('change', (e) => {
       const idx = parseInt(e.target.dataset.idx);
       const campo = e.target.dataset.campo;
@@ -538,12 +538,12 @@ async function agendarTodas(){
   resultadoArea.innerHTML = '<div class="citas-header"><h2>Resultado</h2></div>';
 
   for (const cita of citas){
-    const ok = await crearEventoCalendar(cita);
+    const resultado = await crearEventoCalendar(cita);
     const item = document.createElement('div');
     item.className = 'resultado-item';
-    item.innerHTML = ok
+    item.innerHTML = resultado.ok
       ? `<span class="check-ok">✓</span> ${cita.paciente} – ${cita.especialidad} (${cita.fecha})`
-      : `<span class="check-err">✕</span> ${cita.paciente} – ${cita.especialidad}: no se pudo agendar`;
+      : `<span class="check-err">✕</span> ${cita.paciente} – ${cita.especialidad}: ${resultado.error || 'no se pudo agendar'}`;
     resultadoArea.appendChild(item);
   }
 
@@ -589,10 +589,14 @@ async function crearEventoCalendar(cita){
       },
       body: JSON.stringify(evento)
     });
-    return resp.ok;
+    if (resp.ok) return { ok:true };
+    const cuerpoError = await resp.json().catch(() => null);
+    const mensaje = cuerpoError?.error?.message || `error ${resp.status}`;
+    console.error('Error de Google Calendar:', cuerpoError);
+    return { ok:false, error: mensaje };
   }catch(e){
     console.error(e);
-    return false;
+    return { ok:false, error: 'fallo de conexión' };
   }
 }
 </script>
